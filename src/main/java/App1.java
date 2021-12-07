@@ -10,7 +10,7 @@ public class App1 {
             Properties prop = new Properties();
 
             // set the properties value
-            prop.setProperty("db.url", "localhost");
+            prop.setProperty("db.url", "jdbc:mysql://127.0.0.1:3306/labor5");
             prop.setProperty("db.user", "root");
             prop.setProperty("db.password", "daria20");
 
