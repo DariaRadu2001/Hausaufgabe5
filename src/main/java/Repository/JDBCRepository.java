@@ -18,7 +18,7 @@ public class JDBCRepository{
     /**
      * erledigt die Connexion mit der DB
      */
-    void startConnection() throws IOException {
+    void startConnection() throws IOException, SQLException {
         FileInputStream input = new FileInputStream("C:\\Users\\User\\IdeaProjects\\Hausaufgabe5\\target\\config.properties");
         Properties prop = new Properties();
         prop.load(input);

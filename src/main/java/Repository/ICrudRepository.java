@@ -19,14 +19,14 @@ public interface ICrudRepository<T> {
      * gibt alle Elementen aus der RepoListe
      * @return eine Liste mit Elementen der Typ T
      */
-    List<T> getAll() throws IOException, SQLException;
+    List<T> getAll() throws IOException, SQLException, ListIsEmptyException;
 
     /**
      * Verändert einige Attribute eines Objektes
      * @param obj, das Objekt mit dem switch erledigt
      * @return das alte Objet mit den neuen Attributen
      */
-    T update(T obj) throws IOException, ListIsEmptyException;
+    T update(T obj) throws IOException, ListIsEmptyException, SQLException;
 
     /**
      * aus der RepoListe ein Objekt löschen

@@ -115,10 +115,6 @@ public class StudentRepository implements ICrudRepository<Student>{
         return null;
     }
 
-    @Override
-    public Student update(Student obj) throws IOException, ListIsEmptyException {
-        return null;
-    }
 
     @Override
     public boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException {
@@ -156,5 +152,10 @@ public class StudentRepository implements ICrudRepository<Student>{
             return wahr;
         else
             throw new IllegalAccessException();
+    }
+
+    @Override
+    public Student update(Student obj) throws IOException, ListIsEmptyException {
+        return null;
     }
 }
