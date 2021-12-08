@@ -2,12 +2,14 @@ package Modele;
 
 public class Enrolledment {
 
+    public static long id = 0;
     private long idStudent;
     private long idKurs;
 
     public Enrolledment(long idStudent, long idKurs) {
         this.idStudent = idStudent;
         this.idKurs = idKurs;
+        id++;
     }
 
     public long getIdStudent() {

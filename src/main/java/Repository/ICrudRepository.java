@@ -1,6 +1,7 @@
 package Repository;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import Exception.DasElementExistiertException;
 import Exception.ListIsEmptyException;
@@ -12,13 +13,13 @@ public interface ICrudRepository<T> {
      * @param obj, das Objekt die ich hinlege
      * @return das Objekt
      */
-    T create(T obj) throws IOException, DasElementExistiertException;
+    T create(T obj) throws IOException, DasElementExistiertException, SQLException;
 
     /**
      * gibt alle Elementen aus der RepoListe
      * @return eine Liste mit Elementen der Typ T
      */
-    List<T> getAll();
+    List<T> getAll() throws IOException, SQLException;
 
     /**
      * Verändert einige Attribute eines Objektes
@@ -31,6 +32,6 @@ public interface ICrudRepository<T> {
      * aus der RepoListe ein Objekt löschen
      * @param objID, das Objekt, das ich löschen will
      */
-    boolean delete(Long objID) throws IllegalAccessException, IOException;
+    boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException;
 
 }
