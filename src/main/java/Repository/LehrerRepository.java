@@ -13,6 +13,13 @@ public class LehrerRepository implements ICrudRepository<Lehrer>{
     private Statement statement;
     private DBConnection dbConnection;
 
+    /**
+     * schaut, ob ein Lehrer existiert nach seinem Id
+     * @param id des Lehrers
+     * @return true, wenn der Lehrer existiert, false anders falls
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public boolean findOne(long id) throws SQLException, IOException {
 
         try {
@@ -37,6 +44,14 @@ public class LehrerRepository implements ICrudRepository<Lehrer>{
         return false;
     }
 
+    /**
+     * im DB wir in der Tabelle lehrer ein neuer Tupel hingelegt
+     * @param obj, das Objekt die man hinlegt
+     * @return das Objekt
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws DasElementExistiertException, das Objekt ist in der DB
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public Lehrer create(Lehrer obj) throws IOException, DasElementExistiertException, SQLException {
 
@@ -72,6 +87,12 @@ public class LehrerRepository implements ICrudRepository<Lehrer>{
         return null;
     }
 
+    /**
+     * gibt alle Professoren
+     * @return Liste mit allen Tuples aus der Tabelle lehrer
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public List<Lehrer> getAll() throws SQLException, IOException {
 
@@ -99,6 +120,13 @@ public class LehrerRepository implements ICrudRepository<Lehrer>{
         return null;
     }
 
+    /**
+     * ändert die Attribute eines Tupels, indem man es nach seinem Id sucht
+     * @param obj, das Objekt mit dem switch erledigt
+     * @return das Objekt, anderes, falls null
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public Lehrer update(Lehrer obj) throws IOException, SQLException {
         if(this.findOne(obj.getLehrerID())) {
@@ -124,6 +152,13 @@ public class LehrerRepository implements ICrudRepository<Lehrer>{
         return null;
     }
 
+    /**
+     * löscht aus DB ein Lehrer
+     * @param objID, das Objekt, das man löschen will
+     * @return true, wenn der Lehrer existiert, false anders falls
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public boolean delete(Long objID) throws  IOException, SQLException {
 

@@ -1,7 +1,6 @@
 package Repository;
 
 import Exception.DasElementExistiertException;
-import Modele.Kurs;
 import Modele.Student;
 import java.io.IOException;
 import java.sql.*;
@@ -16,6 +15,13 @@ public class StudentRepository implements ICrudRepository<Student>{
     private ResultSet resultSet;
     private DBConnection dbConnection;
 
+    /**
+     * sucht, ob ein Student in der DB ist nach seiner ID
+     * @param id des Students
+     * @return true, wenn der Student existiert, false anders falls
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public boolean findOne(long id) throws SQLException, IOException {
 
         List<Long> idList = new ArrayList<>();
@@ -38,6 +44,14 @@ public class StudentRepository implements ICrudRepository<Student>{
         return idList.contains(id);
     }
 
+    /**
+     * ein neuer Tupel wird fur Tabelle Student erledigt
+     * @param obj, das Objekt die man hinlegt
+     * @return das Objekt, wenn man es erledigen kann, anders, falls null
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws DasElementExistiertException, der Student existiert
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public Student create(Student obj) throws IOException, DasElementExistiertException, SQLException {
 
@@ -72,6 +86,12 @@ public class StudentRepository implements ICrudRepository<Student>{
         return null;
     }
 
+    /**
+     * gibt alle Tupels aus der Tabelle Student
+     * @return die Liste
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public List<Student> getAll() throws IOException, SQLException {
         List<Student> list = new ArrayList<>();
@@ -100,6 +120,14 @@ public class StudentRepository implements ICrudRepository<Student>{
         return null;
     }
 
+    /**
+     * löscht das Tupels aus Tabelle student
+     * @param objID, des Objekts, das man löschen will
+     * @return true, wenn der Student existiert, false anders falls
+     * @throws IllegalAccessException, das Objekt, das man löschen will, existiert nicht
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException {
 
@@ -130,6 +158,13 @@ public class StudentRepository implements ICrudRepository<Student>{
         return false;
     }
 
+    /**
+     * ander die Attribute eines Tupels
+     * @param obj, das Objekt mit dem switch erledigt
+     * @return  das Objekt, wenn man es erledigen kann, anders, falls null
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public Student update(Student obj) throws IOException,SQLException {
         if(this.findOne(obj.getStudentID())) {
@@ -160,6 +195,13 @@ public class StudentRepository implements ICrudRepository<Student>{
         return null;
     }
 
+    /**
+     * gibt der Anzahl von Kredits, die ein Student noch braucht
+     * @param id des Students
+     * @return Anzahl Kredits
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public int getNotwendigeKredits(long id) throws SQLException, IOException {
         List<Student> liste = this.getAll();
         for(Student student : liste)
@@ -170,6 +212,12 @@ public class StudentRepository implements ICrudRepository<Student>{
         return 0;
     }
 
+    /**
+     * gibt alle Studenten, die bei einem Kurs teilnehmen
+     * @param id des Kurses
+     * @return die Liste von angemeldeten Studenten
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     public List<Long> getStudentenAngemeldetBeiEineKurs(long id) throws SQLException {
         List<Long> listeAngemeldet = new ArrayList<>();
 
@@ -195,6 +243,14 @@ public class StudentRepository implements ICrudRepository<Student>{
         return listeAngemeldet;
     }
 
+    /**
+     * ändert die Anzahl der Kredite von dem Studenten, die bei einem Kurs teilnehmen
+     * @param idKurs, des Kurses
+     * @param neueECTS, neue Anzahl von ECTS
+     * @param alteECTS, alte Anzahl von ECTS
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public void andernKredits(long idKurs, int neueECTS, int alteECTS) throws SQLException, IOException
     {
         List<Long> list = this.getStudentenAngemeldetBeiEineKurs(idKurs);
@@ -229,7 +285,12 @@ public class StudentRepository implements ICrudRepository<Student>{
                 .filter(student->student.getTotalKredits() == 30).toList();
     }
 
-    public Student getStudentNachId(long id) throws SQLException, IOException {
+    /**
+     * gibt dem Student nach seiner ID
+     * @param id des Students
+     * @return der Student
+     */
+    public Student getStudentNachId(long id) {
 
         Student student = null;
         try {

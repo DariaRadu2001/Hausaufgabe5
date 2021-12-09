@@ -64,7 +64,6 @@ public class Kurs implements Comparable<Kurs>{
         this.ects = ects;
     }
 
-
     @Override
     public String toString() {
         return "Kurs{" +
@@ -75,7 +74,6 @@ public class Kurs implements Comparable<Kurs>{
                 ", ects=" + ects +
                 '}';
     }
-
 
     /**
      * vergleicht 2 Kurse nach der Anzahl der ECTS

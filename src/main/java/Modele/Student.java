@@ -50,6 +50,11 @@ public class Student extends Person implements Comparable<Student>{
         return (30 - this.getTotalKredits());
     }
 
+    /**
+     * vergleicht den Anzahlen von ECTS der Studenten
+     * @param student2, der 2. Student
+     * @return dem Vergleich
+     */
     @Override
     public int compareTo(Student student2) {
         return Integer.compare(this.getTotalKredits(), student2.getTotalKredits());

@@ -1,6 +1,5 @@
 package Repository;
 import Modele.Enrolled;
-import Exception.DasElementExistiertException;
 import Exception.ListIsEmptyException;
 import java.io.IOException;
 import java.sql.*;
@@ -14,6 +13,12 @@ public class EnrolledRepository {
     private ResultSet resultSet;
     private DBConnection dbConnection;
 
+    /**
+     * überprüft, ob ein Student existiert nach eine ID
+     * @param id des Students
+     * @return true, wenn der Student existiert, false anders falls
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     public boolean existiertStudent(Long id) throws SQLException {
 
         try {
@@ -37,6 +42,12 @@ public class EnrolledRepository {
         return false;
     }
 
+    /**
+     * überprüft, ob ein Kurs existiert nach eine ID
+     * @param id des Kurses
+     * @return true, wenn der Student existiert, false anders falls
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     public boolean existiertKurs(Long id) throws SQLException{
 
         try {
@@ -62,7 +73,14 @@ public class EnrolledRepository {
 
     }
 
-    public Enrolled create(Enrolled obj) throws IOException, DasElementExistiertException, SQLException, ListIsEmptyException {
+    /**
+     * ein neuer Tupel wird fur Tabelle Enrolled erledigt
+     * @param obj das Tupel
+     * @return das Objekt, wenn man es erledigen kann, anders, falls null
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
+    public Enrolled create(Enrolled obj) throws IOException, SQLException {
 
         if (this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent())) {
             if(!this.findOne(obj.getIdStudent(),obj.getIdKurs()))
@@ -96,7 +114,13 @@ public class EnrolledRepository {
         return null;
     }
 
-
+    /**
+     * gibt alle Tupels aus der Tabelle Enrolled
+     * @return die Liste
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws ListIsEmptyException, wenn die Liste leer ist
+     */
     public List<Enrolled> getAll() throws IOException, SQLException, ListIsEmptyException {
 
         List<Enrolled> list = new ArrayList<>();
@@ -121,61 +145,18 @@ public class EnrolledRepository {
         connection.close();
 
         if (list.size() == 0)
-            throw new ListIsEmptyException("In der enrollment Liste ist leer");
+            throw new ListIsEmptyException("Die enrollment Liste ist leer");
         return list;
     }
-
-    /*
-    public boolean deleteEnrolled(Enrolledment obj) throws IOException, SQLException {
-
-        boolean wahr = false;
-        if (this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent())) {
-            this.startConnection();
-
-            try {
-
-                List<Enrolledment> list = this.getAll();
-                for (Enrolledment enrolledment : list) {
-                    if (enrolledment.getIdStudent() == obj.getIdStudent() && enrolledment.getIdKurs() == obj.getIdKurs()) {
-                        wahr = true;
-                        break;
-                    }
-
-                }
-
-                if (wahr) {
-                    String query = "DELETE FROM enrolled WHERE idstudent = ? AND idkurs = ?";
-
-                    long idStudent = obj.getIdStudent();
-                    long idkurs = obj.getIdKurs();
-
-                    PreparedStatement preparedStmt = connection.prepareStatement(query);
-                    preparedStmt.setLong(1, idStudent);
-                    preparedStmt.setLong(2, idkurs);
-
-                    preparedStmt.execute();
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            this.stopConnection();
-
-        }
-        return wahr;
-    }
-*/
 
     /**
      * sucht ein Objekt nach seiner ID
      *
      * @param idStudent des Students
-     * @param idKurs    des Kurses
+     * @param idKurs des Kurses
      * @return true, wenn das Objekt in deer DB ist, false andernfalls
      * @throws SQLException, wenn man die Connexion nicht erledigen kann
-     * @throws IOException,  wenn man die Connexion nicht erledigen kann
+     * @throws IOException, wenn man die Connexion nicht erledigen kann
      */
     public boolean findOne(long idStudent, long idKurs) throws SQLException, IOException {
 
@@ -194,8 +175,8 @@ public class EnrolledRepository {
                 list.add(enrolled);
             }
 
-            for (Enrolled enrolledment : list) {
-                if (enrolledment.getIdStudent() == idStudent && enrolledment.getIdKurs() == idKurs) {
+            for (Enrolled enrollment : list) {
+                if (enrollment.getIdStudent() == idStudent && enrollment.getIdKurs() == idKurs) {
                     wahr = true;
                     break;
                 }
@@ -208,13 +189,18 @@ public class EnrolledRepository {
         return wahr;
     }
 
+    /**
+     * löscht alle Tupels aus Tabelle enrolled die als idKurs das gegebene Id haben
+     * @param kursId nachdem wir löschen
+     * @throws SQLException, wenn man die Connexion nicht erledigen kann
+     */
     public void deleteEnrolledNachKurs(long kursId) throws SQLException {
 
         try {
             dbConnection = new DBConnection();
             connection = dbConnection.startConnection();
             statement = connection.createStatement();
-            String query = "DELETE FROM enrolled WEHERE idkurs = ?";
+            String query = "DELETE FROM enrolled WHERE idkurs = ?";
 
             PreparedStatement preparedStmt = connection.prepareStatement(query);
             preparedStmt.setLong(1, kursId);

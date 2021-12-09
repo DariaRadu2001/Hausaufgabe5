@@ -70,7 +70,7 @@ import java.sql.*;
 
 
 public class jdbc {
-    public static void main(String[] args) throws IOException, SQLException, InterruptedException, DasElementExistiertException, ListIsEmptyException, ListIsEmptyException {
+    public static void main(String[] args) throws IOException, SQLException, InterruptedException, DasElementExistiertException, ListIsEmptyException {
         KursRepository kursRepository = new KursRepository();
         LehrerRepository lehrerRepository = new LehrerRepository();
         StudentRepository studentRepository = new StudentRepository();

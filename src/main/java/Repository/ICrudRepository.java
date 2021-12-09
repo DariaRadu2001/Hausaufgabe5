@@ -10,7 +10,7 @@ public interface ICrudRepository<T> {
 
     /**
      * legt ein Objekt der Typ T in der RepoListe
-     * @param obj, das Objekt die ich hinlege
+     * @param obj, das Objekt die man hinlegt
      * @return das Objekt
      */
     T create(T obj) throws IOException, DasElementExistiertException, SQLException;
@@ -30,7 +30,7 @@ public interface ICrudRepository<T> {
 
     /**
      * aus der RepoListe ein Objekt löschen
-     * @param objID, das Objekt, das ich löschen will
+     * @param objID, das Objekt, das man löschen will
      */
     boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException;
 

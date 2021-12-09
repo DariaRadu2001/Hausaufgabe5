@@ -1,5 +1,4 @@
 package Repository;
-import Exception.DasElementExistiertException;
 import Modele.Kurs;
 import java.io.IOException;
 import java.sql.*;
@@ -13,7 +12,12 @@ public class KursRepository implements ICrudRepository<Kurs> {
     private DBConnection dbConnection;
 
 
-    public boolean existiertLehrer(Long id) throws SQLException, IOException {
+    /**
+     * überprüft, ob ein Lehrer existiert
+     * @param id nachdem man sucht
+     * @return true, wenn der Student existiert, false anders falls
+     */
+    public boolean existiertLehrer(Long id) {
 
         try {
             dbConnection = new DBConnection();
@@ -35,6 +39,13 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return false;
     }
 
+    /**
+     * ein neuer Tupel wird fur Tabelle Kurs erledigt
+     * @param obj, das Objekt die man hinlegt
+     * @return das Objekt, wenn man es erledigen kann, anders, falls null
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public Kurs create(Kurs obj) throws IOException, SQLException {
 
@@ -73,6 +84,12 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return null;
     }
 
+    /**
+     * gibt alle Tupels aus der Tabelle Kurs
+     * @return die Liste
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public List<Kurs> getAll() throws SQLException, IOException {
         List<Kurs> list = new ArrayList<>();
@@ -101,6 +118,13 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return null;
     }
 
+    /**
+     * ander die Attribute eines Tupels
+     * @param obj, das Objekt mit dem switch erledigt
+     * @return das Objekt, wenn man es erledigen kann, anders, falls null
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public Kurs update(Kurs obj) throws IOException, SQLException {
 
@@ -135,13 +159,20 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return null;
     }
 
+    /**
+     * löscht das Tupels aus Tabelle kurs
+     * @param objID, das Objekt, das man löschen will
+     * @return true, wenn der Kurs existiert, false anders falls
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     @Override
     public boolean delete(Long objID) throws IOException, SQLException {
         if (this.findOne(objID)) {
             try {
                 dbConnection = new DBConnection();
                 connection = dbConnection.startConnection();
-                String query = "DELETE FROM kurs WEHERE idkurs = ?";
+                String query = "DELETE FROM kurs WHERE idkurs = ?";
                 PreparedStatement preparedStmt = connection.prepareStatement(query);
                 preparedStmt.setLong(1, objID);
 
@@ -155,6 +186,13 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return false;
     }
 
+    /**
+     * sucht, ob ein Kurs in der DB ist nach seiner ID
+     * @param id des Kurses
+     * @return true, wenn der Student existiert, false anders falls
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public boolean findOne(long id) throws SQLException, IOException {
 
         try {
@@ -176,6 +214,14 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return false;
     }
 
+    /**
+     * ander die ECTS eines Kurses
+     * @param id des Kurses
+     * @param ects die neue ECTS
+     * @return die alte ECTS
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public int andernECTS(long id, int ects) throws SQLException, IOException {
 
         if (this.findOne(id)) {
@@ -206,7 +252,12 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return 0;
     }
 
-    public int getAnzahlStudenten(long id) throws SQLException, IOException {
+    /**
+     * gibt der Anzahl der Studenten angemeldet bei einem Kurs
+     * @param id des Kurses
+     * @return Anzahl angemeldeten Studenten
+     */
+    public int getAnzahlStudenten(long id) {
 
         int ct = 0;
         try {
@@ -226,17 +277,12 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return ct;
     }
 
-    /*
-        public int getECTS(long id) throws SQLException, IOException {
-            List<Kurs> liste = this.getAll();
-            for(Kurs kurs : liste)
-            {
-                if(kurs.getID() == id)
-                    return kurs.getEcts();
-            }
-            return 30;
-        }
-    */
+    /**
+     * Schaut welche Kurse freie Platzen haben
+     * @return Liste Kurse mit freien Platzen
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     */
     public List<Kurs> kurseFreiePlatze() throws SQLException, IOException {
         List<Kurs> alleKurse = this.getAll();
         List<Kurs> freiePlatze = new ArrayList<>();
@@ -249,7 +295,6 @@ public class KursRepository implements ICrudRepository<Kurs> {
 
     /**
      * filtert die Liste nach die Anzahl von ECTS(die Kurse die > 5 ECTS haben)
-     *
      * @return die gefilterte Liste
      */
     public List<Kurs> filter() throws SQLException, IOException {
@@ -267,7 +312,12 @@ public class KursRepository implements ICrudRepository<Kurs> {
         return liste;
     }
 
-    public Kurs getKursNachId(long id) throws SQLException, IOException {
+    /**
+     * gibt einen Kurs nach dem Id
+     * @param id des Kurses
+     * @return der Kurs
+     */
+    public Kurs getKursNachId(long id) {
 
         Kurs kurs = null;
         try {
@@ -296,6 +346,5 @@ public class KursRepository implements ICrudRepository<Kurs> {
 
         return kurs;
     }
-
 
 }

@@ -372,7 +372,7 @@ public class KonsoleView {
      * Ui und Anwendung fur Add Methoden
      * @throws InterruptedException, fur Wartezeit
      */
-    public void getFunctionGetAll() throws InterruptedException, SQLException, IOException, ListIsEmptyException {
+    public void getFunctionGetAll() throws InterruptedException, SQLException, IOException{
         Scanner scan= new Scanner(System.in);
         int key;
         do {
@@ -395,8 +395,15 @@ public class KonsoleView {
                 Thread.sleep(3000);
             }
             case 4 -> {
-                System.out.println("ENROLLED:\n" + enrolledController.getAll());
-                Thread.sleep(3000);
+                try{
+                    System.out.println("ENROLLED:\n" + enrolledController.getAll());
+                    Thread.sleep(3000);
+                }
+                catch (ListIsEmptyException e)
+                {
+                    System.out.println("Die Liste ist leer.");
+                }
+
             }
         }
     }

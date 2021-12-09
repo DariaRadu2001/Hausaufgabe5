@@ -41,5 +41,12 @@ public interface Controller<T> {
      */
     boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException;
 
+    /**
+     * sucht ein Objekt nach seiner ID
+     * @param id des Objektes
+     * @return true, wenn man das Element findet, false wenn man nicht findet
+     * @throws IOException, wenn man das Connexion nicht erledigen kann
+     * @throws SQLException, wenn man das Connexion nicht erledigen kann
+     */
     boolean findOne(Long id) throws IOException, SQLException;
 }
