@@ -1,11 +1,17 @@
-import Modele.Student;
+import Controller.EnrolledController;
+import Controller.KursController;
+import Controller.LehrerController;
+import Controller.StudentController;
+import KonsoleView.KonsoleView;
+import Exception.DasElementExistiertException;
+import Repository.EnrolledRepository;
+import Repository.KursRepository;
+import Repository.LehrerRepository;
+import Repository.StudentRepository;
 
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Properties;
+
 
 /*
  connection = DriverManager.getConnection(url,user,password);
@@ -28,15 +34,7 @@ import java.util.Properties;
             System.out.println(list);
         } catch (Exception e) {
             e.printStackTrace();
-        }
- */
-
-
-
-
-public class jdbc {
-    public static void main(String[] args) throws IOException {
-        String url;
+        }String url;
         String user;
         String password;
         FileInputStream input = new FileInputStream("C:\\Users\\User\\IdeaProjects\\Hausaufgabe5\\target\\config.properties");
@@ -68,5 +66,22 @@ public class jdbc {
             e.printStackTrace();
         }
 
+ */
+
+
+
+
+public class jdbc {
+    public static void main(String[] args) throws IOException, SQLException, InterruptedException, DasElementExistiertException {
+        KursRepository kursRepository = new KursRepository();
+        LehrerRepository lehrerRepository = new LehrerRepository();
+        StudentRepository studentRepository = new StudentRepository();
+        EnrolledRepository enrolledRepository = new EnrolledRepository();
+        KursController kursController = new KursController(kursRepository,studentRepository,lehrerRepository,enrolledRepository);
+        LehrerController lehrerController = new LehrerController(lehrerRepository);
+        StudentController studentController = new StudentController(studentRepository);
+        EnrolledController enrolledController =  new EnrolledController(kursRepository,studentRepository,enrolledRepository);
+        KonsoleView view = new KonsoleView(kursController,lehrerController,studentController,enrolledController);
+        view.start();
     }
 }

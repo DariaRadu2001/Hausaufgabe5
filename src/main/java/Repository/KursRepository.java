@@ -284,4 +284,20 @@ public class KursRepository implements ICrudRepository<Kurs>{
         return liste;
     }
 
+    public Kurs getKursNachId(long id) throws SQLException, IOException {
+        this.startConnection();
+        Kurs kurs = null;
+        resultSet = statement.executeQuery("SELECT * FROM kurs");
+        while (resultSet.next()) {
+            String name = resultSet.getString("Name");
+            long idLehrer = resultSet.getLong("idlehrer");
+            int anzahl = resultSet.getInt("maxAnzahl");
+            int ects = resultSet.getInt("ECTS");
+            kurs = new Kurs(id,name,idLehrer,anzahl,ects);
+            break;
+        }
+        return kurs;
+    }
+
+
 }

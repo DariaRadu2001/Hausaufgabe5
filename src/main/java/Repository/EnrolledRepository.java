@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Properties;
 
 
-public abstract class EnrolledRepository implements ICrudRepository<Enrolledment> {
+public class EnrolledRepository {
 
 
     private Connection connection;
@@ -86,7 +86,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
         return false;
     }
 
-    @Override
+
     public Enrolledment create(Enrolledment obj) throws IOException, DasElementExistiertException, SQLException {
 
         if (this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent())) {
@@ -123,7 +123,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
             return null;
     }
 
-    @Override
+
     public List<Enrolledment> getAll() throws IOException, SQLException, ListIsEmptyException {
 
         List<Enrolledment> list = new ArrayList<>();
@@ -201,7 +201,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
      * @throws SQLException, wenn man die Connexion nicht erledigen kann
      * @throws IOException,  wenn man die Connexion nicht erledigen kann
      */
-    boolean findOne(long idStudent, long idKurs) throws SQLException, IOException {
+    public boolean findOne(long idStudent, long idKurs) throws SQLException, IOException {
 
         this.startConnection();
         boolean wahr = false;
