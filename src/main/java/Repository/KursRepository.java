@@ -1,6 +1,5 @@
 package Repository;
 import Exception.DasElementExistiertException;
-import Exception.ListIsEmptyException;
 import Modele.Kurs;
 
 import java.io.FileInputStream;
@@ -10,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class KursRepository extends JDBCRepository implements ICrudRepository<Kurs>{
+public class KursRepository implements ICrudRepository<Kurs>{
 
     private Connection connection;
     private Statement statement;
@@ -19,7 +18,7 @@ public class KursRepository extends JDBCRepository implements ICrudRepository<Ku
     /**
      * erledigt die Connexion mit der DB
      */
-    void startConnection() throws IOException, SQLException {
+    private void startConnection() throws IOException, SQLException {
         String url;
         String user;
         String password;
@@ -37,7 +36,7 @@ public class KursRepository extends JDBCRepository implements ICrudRepository<Ku
     /**
      * stopt die Connexion mit der DB
      */
-    void stopConnection() throws SQLException {
+    private void stopConnection() throws SQLException {
         this.connection.close();
     }
 
@@ -61,23 +60,15 @@ public class KursRepository extends JDBCRepository implements ICrudRepository<Ku
         return false;
     }
 
-
     @Override
-    public Kurs create(Kurs obj) throws IOException, DasElementExistiertException, SQLException {
+    public Kurs create(Kurs obj) throws IOException, SQLException {
 
         if(this.existiertLehrer(obj.getLehrer()))
         {
             this.startConnection();
             try {
-                resultSet = statement.executeQuery("SELECT * FROM kurs");
 
-                List<Long> list = new ArrayList<>();
-                while (resultSet.next()) {
-                    long idkurs = resultSet.getLong("idkurs");
-                    list.add(idkurs);
-                }
-
-                if(!list.contains(obj.getID()))
+                if(!this.findOne(obj.getID()))
                 {
                     String query = "INSERT INTO kurs VALUES(?, ?, ?, ?, ?)";
                     long id = obj.getID();
@@ -112,17 +103,98 @@ public class KursRepository extends JDBCRepository implements ICrudRepository<Ku
     }
 
     @Override
-    public List<Kurs> getAll() {
+    public List<Kurs> getAll() throws SQLException, IOException {
+        List<Kurs> list = new ArrayList<>();
+        this.startConnection();
+        try{
+            resultSet = statement.executeQuery("SELECT * FROM kurs");
+
+            while(resultSet.next())
+            {
+                long id = resultSet.getLong("idkurs");
+                String name = resultSet.getString("Name");
+                long idLehrer = resultSet.getLong("idlehrer");
+                int anzahl = resultSet.getInt("maxAnzahl");
+                int ects = resultSet.getInt("ECTS");
+                Kurs kurs = new Kurs(id,name,idLehrer,anzahl,ects);
+                list.add(kurs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.stopConnection();
+        if(list.size()>0)
+            return list;
         return null;
     }
 
     @Override
-    public Kurs update(Kurs obj) throws IOException, ListIsEmptyException {
+    public Kurs update(Kurs obj) throws IOException, SQLException {
+
+        if(this.findOne(obj.getID()) && this.existiertLehrer(obj.getLehrer()))
+        {
+            this.startConnection();
+
+            try {
+                String query = "UPDATE kurs SET Name = ? , idlehrer = ?, maxAnzahl = ?, ECTS = ? WHERE idkurs = ?";
+
+                long id = obj.getID();
+                String name = obj.getName();
+                long idLehrer = obj.getLehrer();
+                int anzahl = obj.getMaximaleAnzahlStudenten();
+                int ects = obj.getEcts();
+
+                PreparedStatement preparedStmt = connection.prepareStatement(query);
+                preparedStmt.setString(1, name);
+                preparedStmt.setLong(2, idLehrer);
+                preparedStmt.setInt(3, anzahl);
+                preparedStmt.setInt(4, ects);
+                preparedStmt.setLong(5, id);
+
+                preparedStmt.execute();
+                this.stopConnection();
+                return obj;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return null;
     }
 
     @Override
-    public boolean delete(Long objID) throws IllegalAccessException, IOException {
+    public boolean delete(Long objID) throws IOException, SQLException {
+        if(this.findOne(objID))
+        {
+            this.startConnection();
+            try{
+                String query = "DELETE FROM kurs WEHERE idkurs = ?";
+                PreparedStatement preparedStmt = connection.prepareStatement(query);
+                preparedStmt.setLong  (1, objID);
+
+                preparedStmt.execute();
+                this.stopConnection();
+                return true;
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
         return false;
+    }
+
+    public boolean findOne(long id) throws SQLException, IOException {
+
+        this.startConnection();
+        resultSet = statement.executeQuery("SELECT * FROM kurs");
+
+        List<Long> list = new ArrayList<>();
+        while (resultSet.next()) {
+            long idKurs = resultSet.getLong("idkurs");
+            list.add(idKurs);
+        }
+
+        return list.contains(id);
     }
 }

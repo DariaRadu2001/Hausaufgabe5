@@ -1,7 +1,6 @@
 package Repository;
 
 import Exception.DasElementExistiertException;
-import Exception.ListIsEmptyException;
 import Modele.Student;
 
 import java.io.FileInputStream;
@@ -13,22 +12,19 @@ import java.util.Properties;
 
 public class StudentRepository implements ICrudRepository<Student>{
 
-    private String url;
-    private String user;
-    private String password;
     private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
     /**
      * erledigt die Connexion mit der DB
      */
-    void startConnection() throws IOException, SQLException {
+    private void startConnection() throws IOException, SQLException {
         FileInputStream input = new FileInputStream("C:\\Users\\User\\IdeaProjects\\Hausaufgabe5\\target\\config.properties");
         Properties prop = new Properties();
         prop.load(input);
-        url = prop.getProperty("db.url");
-        user = prop.getProperty("db.user");
-        password = prop.getProperty("db.password");
+        String url = prop.getProperty("db.url");
+        String user = prop.getProperty("db.user");
+        String password = prop.getProperty("db.password");
         System.out.println(url+ " "+user+ " "+password);
         connection = DriverManager.getConnection(url, user, password);
         statement = connection.createStatement();
@@ -37,28 +33,34 @@ public class StudentRepository implements ICrudRepository<Student>{
     /**
      * stopt die Connexion mit der DB
      */
-    void stopConnection() throws SQLException {
+    private void stopConnection() throws SQLException {
         this.connection.close();
     }
 
+    public boolean findOne(long id) throws SQLException, IOException {
+        this.startConnection();
+        List<Long> idList = new ArrayList<>();
+        try {
+            resultSet = statement.executeQuery("SELECT idstudent FROM student");
+
+            while (resultSet.next()) {
+                long id2 = resultSet.getLong("idstudent");
+                idList.add(id2);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return idList.contains(id);
+    }
 
     @Override
     public Student create(Student obj) throws IOException, DasElementExistiertException, SQLException {
 
-        this.startConnection();
-        boolean wahr = false;
-        try {
-            resultSet = statement.executeQuery("SELECT idstudent FROM student");
-
-            List<Long> idList = new ArrayList<>();
-            while (resultSet.next()) {
-                long id = resultSet.getLong("idstudent");
-                idList.add(id);
-            }
-
-            if(!idList.contains(obj.getStudentID()))
-            {
-                wahr = true;
+        if(!this.findOne(obj.getStudentID())) {
+            this.startConnection();
+            try {
                 String query = "INSERT INTO student VALUES(?, ?, ?, ?)";
 
                 String vorname = obj.getVorname();
@@ -67,25 +69,21 @@ public class StudentRepository implements ICrudRepository<Student>{
                 int anzahl = obj.getTotalKredits();
 
                 PreparedStatement preparedStmt = connection.prepareStatement(query);
-                preparedStmt.setLong   (1, id);
-                preparedStmt.setString (2, vorname);
-                preparedStmt.setString (3, nachname);
+                preparedStmt.setLong(1, id);
+                preparedStmt.setString(2, vorname);
+                preparedStmt.setString(3, nachname);
                 preparedStmt.setInt(4, anzahl);
 
                 preparedStmt.execute();
-
+                this.stopConnection();
+                return obj;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
-        this.stopConnection();
-        if(wahr)
-            return obj;
         else
             throw new DasElementExistiertException("Das Student existiert");
-
+        return null;
     }
 
     @Override
@@ -93,9 +91,8 @@ public class StudentRepository implements ICrudRepository<Student>{
         List<Student> list = new ArrayList<>();
         this.startConnection();
         try{
-            connection = DriverManager.getConnection(url,user,password);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM student");
+
+            resultSet = statement.executeQuery("SELECT * FROM student");
 
             while(resultSet.next())
             {
@@ -115,47 +112,60 @@ public class StudentRepository implements ICrudRepository<Student>{
         return null;
     }
 
-
     @Override
     public boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException {
 
-        this.startConnection();
-        boolean wahr = false;
-        try {
-            resultSet = statement.executeQuery("SELECT idstudent FROM student");
-
-            List<Long> idList = new ArrayList<>();
-            while (resultSet.next()) {
-                long id = resultSet.getLong("idstudent");
-                idList.add(id);
-            }
-
-            if(!idList.contains(objID))
-            {
-                wahr = true;
+        if(this.findOne(objID))
+        {
+            this.startConnection();
+            try{
                 String query = "DELETE FROM student WEHERE idstudent = ?";
 
                 PreparedStatement preparedStmt = connection.prepareStatement(query);
                 preparedStmt.setLong  (1, objID);
 
                 preparedStmt.execute();
-
+                this.stopConnection();
+                return true;
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
         }
-
-        this.stopConnection();
-
-        if(wahr)
-            return wahr;
         else
             throw new IllegalAccessException();
+
+        return false;
     }
 
     @Override
-    public Student update(Student obj) throws IOException, ListIsEmptyException {
+    public Student update(Student obj) throws IOException,SQLException {
+        if(this.findOne(obj.getStudentID())) {
+            this.startConnection();
+
+            try {
+                String query = "UPDATE student SET Vorname = ? , Nachname = ?, AnzahlKredits =? WHERE idstudent = ?";
+
+                String vorname = obj.getVorname();
+                String nachname = obj.getNachname();
+                long id = obj.getStudentID();
+                int anzahl = obj.getTotalKredits();
+
+                PreparedStatement preparedStmt = connection.prepareStatement(query);
+                preparedStmt.setString(1, vorname);
+                preparedStmt.setString(2, nachname);
+                preparedStmt.setInt(3, anzahl);
+                preparedStmt.setLong(4, id);
+
+                preparedStmt.execute();
+                this.stopConnection();
+                return obj;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return null;
     }
 }

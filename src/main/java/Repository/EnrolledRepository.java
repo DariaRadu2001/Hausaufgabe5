@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Properties;
 
 
-public abstract class EnrolledRepository implements ICrudRepository<Enrolledment>{
+public abstract class EnrolledRepository implements ICrudRepository<Enrolledment> {
 
 
     private Connection connection;
@@ -21,7 +21,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
     /**
      * erledigt die Connexion mit der DB
      */
-    void startConnection() throws IOException, SQLException {
+    private void startConnection() throws IOException, SQLException {
         String url;
         String user;
         String password;
@@ -31,7 +31,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
         url = prop.getProperty("db.url");
         user = prop.getProperty("db.user");
         password = prop.getProperty("db.password");
-        System.out.println(url+ " "+user+ " "+password);
+        System.out.println(url + " " + user + " " + password);
         connection = DriverManager.getConnection(url, user, password);
         statement = connection.createStatement();
     }
@@ -39,7 +39,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
     /**
      * stopt die Connexion mit der DB
      */
-    void stopConnection() throws SQLException {
+    private void stopConnection() throws SQLException {
         this.connection.close();
     }
 
@@ -87,42 +87,24 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
     @Override
     public Enrolledment create(Enrolledment obj) throws IOException, DasElementExistiertException, SQLException {
 
-        if(this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent()))
-        {
+        if (this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent())) {
             this.startConnection();
-            boolean wahr = true;
+            boolean wahr = false;
             try {
-                resultSet = statement.executeQuery("SELECT * FROM enrolled");
 
-                List<Enrolledment> list = new ArrayList<>();
-                while (resultSet.next()) {
-                    long idStudent = resultSet.getLong("idstudent");
-                    long idkurs = resultSet.getLong("idkurs");
-                    Enrolledment enrolled = new Enrolledment(idStudent,idkurs);
-                    list.add(enrolled);
-                }
-
-                for(Enrolledment enrolledment : list)
-                {
-                    if (enrolledment.getIdStudent() == obj.getIdStudent() && enrolledment.getIdKurs() == obj.getIdKurs()) {
-                        wahr = false;
-                        break;
-                    }
-
-                }
-
-                if(wahr)
-                {
+                if (!this.findOne(obj.getIdStudent(),obj.getIdKurs())) {
                     String query = "INSERT INTO enrolled VALUES(?, ?)";
 
-                    long idStudent =  obj.getIdStudent();
-                    long idkurs = obj.getIdKurs();
+                    long idStudent = obj.getIdStudent();
+                    long idKurs = obj.getIdKurs();
 
                     PreparedStatement preparedStmt = connection.prepareStatement(query);
-                    preparedStmt.setLong   (1, idStudent);
-                    preparedStmt.setLong (2, idkurs);
+                    preparedStmt.setLong(1, idStudent);
+                    preparedStmt.setLong(2, idKurs);
 
                     preparedStmt.execute();
+
+                    wahr = true;
 
                 }
 
@@ -131,12 +113,11 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
             }
 
             this.stopConnection();
-            if(wahr)
+            if (wahr)
                 return obj;
             else
-                throw new DasElementExistiertException("Das Student existiert");
-        }
-        else
+                throw new DasElementExistiertException("ERROR");
+        } else
             return null;
     }
 
@@ -152,7 +133,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
             while (resultSet.next()) {
                 long idStudent = resultSet.getLong("idstudent");
                 long idkurs = resultSet.getLong("idkurs");
-                Enrolledment enrolled = new Enrolledment(idStudent,idkurs);
+                Enrolledment enrolled = new Enrolledment(idStudent, idkurs);
                 list.add(enrolled);
             }
         } catch (Exception e) {
@@ -161,36 +142,22 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
 
         this.stopConnection();
 
-        if(list.size()==0)
+        if (list.size() == 0)
             throw new ListIsEmptyException("In der enrollment Liste ist leer");
         return list;
-    }
-
-    @Override
-    public Enrolledment update(Enrolledment obj) throws IOException, ListIsEmptyException, SQLException {
-
-        this.startConnection();
-
-
-
-        this.startConnection();
-
-        return null;
     }
 
 
     public boolean deleteEnrolled(Enrolledment obj) throws IOException, SQLException {
 
-        boolean wahr = false ;
-        if(this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent()))
-        {
+        boolean wahr = false;
+        if (this.existiertKurs(obj.getIdKurs()) && this.existiertStudent(obj.getIdStudent())) {
             this.startConnection();
 
             try {
 
                 List<Enrolledment> list = this.getAll();
-                for(Enrolledment enrolledment : list)
-                {
+                for (Enrolledment enrolledment : list) {
                     if (enrolledment.getIdStudent() == obj.getIdStudent() && enrolledment.getIdKurs() == obj.getIdKurs()) {
                         wahr = true;
                         break;
@@ -198,16 +165,15 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
 
                 }
 
-                if(wahr)
-                {
+                if (wahr) {
                     String query = "DELETE FROM student WEHERE idstudent = ? AND idkurs = ?";
 
-                    long idStudent =  obj.getIdStudent();
+                    long idStudent = obj.getIdStudent();
                     long idkurs = obj.getIdKurs();
 
                     PreparedStatement preparedStmt = connection.prepareStatement(query);
-                    preparedStmt.setLong   (1, idStudent);
-                    preparedStmt.setLong (2, idkurs);
+                    preparedStmt.setLong(1, idStudent);
+                    preparedStmt.setLong(2, idkurs);
 
                     preparedStmt.execute();
 
@@ -222,4 +188,44 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
         }
         return wahr;
     }
+
+
+    /**
+     * sucht ein Objekt nach seiner ID
+     *
+     * @param idStudent des Students
+     * @param idKurs    des Kurses
+     * @return true, wenn das Objekt in deer DB ist, false andernfalls
+     * @throws SQLException, wenn man die Connexion nicht erledigen kann
+     * @throws IOException,  wenn man die Connexion nicht erledigen kann
+     */
+    boolean findOne(long idStudent, long idKurs) throws SQLException, IOException {
+
+        this.startConnection();
+        boolean wahr = false;
+        try {
+            resultSet = statement.executeQuery("SELECT * FROM enrolled");
+
+            List<Enrolledment> list = new ArrayList<>();
+            while (resultSet.next()) {
+                long idStudent2 = resultSet.getLong("idstudent");
+                long idKurs2 = resultSet.getLong("idkurs");
+                Enrolledment enrolled = new Enrolledment(idStudent2, idKurs2);
+                list.add(enrolled);
+            }
+
+            for (Enrolledment enrolledment : list) {
+                if (enrolledment.getIdStudent() == idStudent && enrolledment.getIdKurs() == idKurs) {
+                    wahr = true;
+                    break;
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.stopConnection();
+        return wahr;
+    }
+
 }

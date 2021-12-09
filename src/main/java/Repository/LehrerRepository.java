@@ -1,6 +1,5 @@
 package Repository;
 import Exception.DasElementExistiertException;
-import Exception.ListIsEmptyException;
 import Modele.Lehrer;
 
 import java.io.FileInputStream;
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Properties;
 
 
-public class LehrerRepository extends JDBCRepository implements ICrudRepository<Lehrer>{
+public class LehrerRepository implements ICrudRepository<Lehrer>{
 
     private Connection connection;
     private Statement statement;
@@ -20,7 +19,7 @@ public class LehrerRepository extends JDBCRepository implements ICrudRepository<
     /**
      * erledigt die Connexion mit der DB
      */
-    void startConnection() throws IOException, SQLException {
+    private void startConnection() throws IOException, SQLException {
         String url;
         String user;
         String password;
@@ -38,27 +37,37 @@ public class LehrerRepository extends JDBCRepository implements ICrudRepository<
     /**
      * stopt die Connexion mit der DB
      */
-    void stopConnection() throws SQLException {
+    private void stopConnection() throws SQLException {
         this.connection.close();
     }
 
-    @Override
-    public Lehrer create(Lehrer obj) throws IOException, DasElementExistiertException, SQLException {
-
+    public boolean findOne(long id) throws SQLException, IOException {
         this.startConnection();
-        boolean wahr = false;
         try {
             resultSet = statement.executeQuery("SELECT idlehrer FROM lehrer");
 
             List<Long> idList = new ArrayList<>();
             while (resultSet.next()) {
-                long id = resultSet.getLong("idlehrer");
-                idList.add(id);
+                long id2 = resultSet.getLong("idlehrer");
+                idList.add(id2);
             }
 
-            if(!idList.contains(obj.getLehrerID()))
-            {
-                wahr = true;
+            return idList.contains(id);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public Lehrer create(Lehrer obj) throws IOException, DasElementExistiertException, SQLException {
+
+        if(!this.findOne(obj.getLehrerID()))
+        {
+            this.startConnection();
+            try{
                 String query = "INSERT INTO lehrer VALUES(?, ?, ?)";
 
                 String vorname = obj.getVorname();
@@ -71,18 +80,18 @@ public class LehrerRepository extends JDBCRepository implements ICrudRepository<
                 preparedStmt.setLong   (3, id);
 
                 preparedStmt.execute();
-
+                this.startConnection();
+                return obj;
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
-
-        this.stopConnection();
-        if(wahr)
-            return obj;
         else
             throw new DasElementExistiertException("Der Lehrer existiert");
+
+        return null;
     }
 
     @Override
@@ -111,50 +120,56 @@ public class LehrerRepository extends JDBCRepository implements ICrudRepository<
     }
 
     @Override
-    public Lehrer update(Lehrer obj) throws IOException, ListIsEmptyException {
+    public Lehrer update(Lehrer obj) throws IOException, SQLException {
+        if(this.findOne(obj.getLehrerID())) {
+            this.startConnection();
+
+            try {
+                String query = "UPDATE lehrer SET Vorname = ? , Nachname = ? WHERE idlehrer = ?";
+
+                String vorname = obj.getVorname();
+                String nachname = obj.getNachname();
+                long id = obj.getLehrerID();
+
+                PreparedStatement preparedStmt = connection.prepareStatement(query);
+                preparedStmt.setString(1, vorname);
+                preparedStmt.setString(2, nachname);
+                preparedStmt.setLong(3, id);
+
+                preparedStmt.execute();
+                this.stopConnection();
+                return obj;
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return null;
     }
 
     @Override
-    public boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException {
-        boolean wahr = false;
-        this.startConnection();
-        try {
+    public boolean delete(Long objID) throws  IOException, SQLException {
 
-            resultSet = statement.executeQuery("SELECT idlehrer FROM lehrer");
-
-            List<Long> idList = new ArrayList<>();
-            while (resultSet.next()) {
-                long id = resultSet.getLong("idlehrer");
-                idList.add(id);
-            }
-
-            if(!idList.contains(objID))
-            {
-                wahr = true;
+        if(this.findOne(objID))
+        {
+            this.startConnection();
+            try{
                 String query = "DELETE FROM lehrer WEHERE idlehrer = ?";
 
                 PreparedStatement preparedStmt = connection.prepareStatement(query);
                 preparedStmt.setLong  (1, objID);
-
                 preparedStmt.execute();
-
+                this.stopConnection();
+                return true;
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
         }
-
-
-        this.stopConnection();
-
-        if(wahr)
-            return true;
-        else
-            throw new IllegalAccessException();
-
+        return false;
     }
 
 
-    }
+}
 
