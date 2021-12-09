@@ -35,7 +35,7 @@ import java.util.Properties;
 
 
 public class jdbc {
-    public static void main(String[] args) throws IOException {/*
+    public static void main(String[] args) throws IOException {
         String url;
         String user;
         String password;
@@ -49,25 +49,24 @@ public class jdbc {
         try{
             Connection connection = DriverManager.getConnection(url,user,password);
             Statement statement = connection.createStatement();
-
-            String query = "UPDATE student SET Vorname = ? , Nachname = ?, AnzahlKredits =? WHERE idstudent = ?";
-
-            String vorname = "Daria";
-            String nachname = "Radu";
-            long id = 1L;
-            int anzahl = 11;
-
-            PreparedStatement preparedStmt = connection.prepareStatement(query);
-            preparedStmt.setString(1, vorname);
-            preparedStmt.setString(2, nachname);
-            preparedStmt.setInt(3, anzahl);
-            preparedStmt.setLong(4, id);
-
-            preparedStmt.execute();
+            ResultSet resultSet;
+            int ct = 0;
+            try{
+                resultSet = statement.executeQuery("SELECT * FROM enrolled");
+                while (resultSet.next()) {
+                    if(resultSet.getLong("idkurs") == 3L)
+                    ct++;
+                }
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+            System.out.println(ct);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        */
+
     }
 }

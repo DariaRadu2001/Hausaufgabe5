@@ -1,6 +1,6 @@
 package Modele;
 
-public class Student extends Person{
+public class Student extends Person implements Comparable<Student>{
 
     private long studentID;
     private int totalKredits;
@@ -50,4 +50,9 @@ public class Student extends Person{
         return (30 - this.getTotalKredits());
     }
 
+    @Override
+    public int compareTo(Student student2) {
+        return Integer.compare(this.getTotalKredits(), student2.getTotalKredits());
+
+    }
 }

@@ -1,6 +1,7 @@
 package Repository;
 import Exception.DasElementExistiertException;
 import Modele.Kurs;
+import Modele.Student;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class KursRepository implements ICrudRepository<Kurs>{
     }
 
     /**
-     * stopt die Connexion mit der DB
+     * stoppt die Connexion mit der DB
      */
     private void stopConnection() throws SQLException {
         this.connection.close();
@@ -197,4 +198,90 @@ public class KursRepository implements ICrudRepository<Kurs>{
 
         return list.contains(id);
     }
+
+    public int andernECTS(long id, int ects) throws SQLException, IOException {
+
+        if(this.findOne(id))
+        {
+            this.startConnection();
+
+            String query1 = "SELECT ECTS FROM kurs WHERE idkurs = ?";
+            PreparedStatement preparedStmt1 = connection.prepareStatement(query1);
+            preparedStmt1.setLong(1, id);
+            resultSet = preparedStmt1.executeQuery();
+            int alteECTS = 0;
+            while(resultSet.next())
+                alteECTS = resultSet.getInt("ECTS");
+
+            String query = "UPDATE kurs SET ECTS = ? WHERE idkurs = ?";
+            PreparedStatement preparedStmt = connection.prepareStatement(query);
+            preparedStmt.setInt  (1, ects);
+            preparedStmt.setLong  (2, id);
+
+            preparedStmt.execute();
+            this.stopConnection();
+            return alteECTS;
+        }
+        return 0;
+    }
+
+    public int getAnzahlStudenten(long id) throws SQLException, IOException {
+        this.startConnection();
+        int ct = 0;
+        try{
+            resultSet = statement.executeQuery("SELECT * FROM enrolled");
+            while (resultSet.next()) {
+                if(resultSet.getLong("idkurs") == id)
+                    ct++;
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        return ct;
+    }
+
+
+    public int getECTS(long id) throws SQLException, IOException {
+        List<Kurs> liste = this.getAll();
+        for(Kurs kurs : liste)
+        {
+            if(kurs.getID() == id)
+                return kurs.getEcts();
+        }
+        return 30;
+    }
+
+    public List<Kurs> kurseFreiePlatze() throws SQLException, IOException
+    {
+        List<Kurs> alleKurse = this.getAll();
+        List<Kurs> freiePlatze = new ArrayList<>();
+        for(Kurs kurs : alleKurse)
+        {
+            if((kurs.getMaximaleAnzahlStudenten() - this.getAnzahlStudenten(kurs.getID())) != 0)
+                freiePlatze.add(kurs);
+        }
+        return freiePlatze;
+    }
+
+    /**
+     * filtert die Liste nach die Anzahl von ECTS(die Kurse die > 5 ECTS haben)
+     * @return die gefilterte Liste
+     */
+    public List<Kurs> filter() throws SQLException, IOException {
+        List<Kurs> liste = this.getAll();
+        return liste.stream()
+                .filter(kurs->kurs.getEcts() > 5).toList();
+    }
+
+    /**
+     * sortiert die Liste in steigender Reihenfolge nach Anzahl der ECTS
+     */
+    public List<Kurs> sort() throws SQLException, IOException {
+        List<Kurs> liste = this.getAll();
+        liste.sort(Kurs::compareTo);
+        return liste;
+    }
+
 }

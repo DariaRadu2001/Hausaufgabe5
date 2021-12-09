@@ -168,4 +168,70 @@ public class StudentRepository implements ICrudRepository<Student>{
         }
         return null;
     }
+
+    public int getNotwendigeKredits(long id) throws SQLException, IOException {
+        List<Student> liste = this.getAll();
+        for(Student student : liste)
+        {
+            if(id == student.getStudentID())
+                return student.getNotwendigeKredits();
+        }
+        return 0;
+    }
+
+    public List<Long> getStudentenAngemeldetBeiEineKurs(long id) throws SQLException, IOException {
+        List<Long> listeAngemeldet = new ArrayList<>();
+        this.startConnection();
+        try{
+            resultSet = statement.executeQuery("SELECT * FROM enrolled");
+            while (resultSet.next()) {
+                if(resultSet.getLong("idkurs") == id)
+                {
+                    long idStudent = resultSet.getLong("idstudent");
+                    listeAngemeldet.add(idStudent);
+                }
+
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        this.stopConnection();
+        return listeAngemeldet;
+    }
+
+    public void andernKredits(long idKurs, int neueECTS, int alteECTS) throws SQLException, IOException
+    {
+        List<Long> list = this.getStudentenAngemeldetBeiEineKurs(idKurs);
+        List<Student> listeStudenten = this.getAll();
+        for(Student student : listeStudenten)
+        {
+            if(list.contains(student.getStudentID()))
+            {
+                int ects = student.getTotalKredits() - alteECTS + neueECTS;
+                Student studentZuAndern = new Student(student.getVorname(),student.getNachname(),student.getStudentID(),ects);
+                this.update(studentZuAndern);
+            }
+        }
+    }
+
+    /**
+     * Sortiert in steigender Reihenfolge die Liste von Studenten nach Anzahl ECTS
+     */
+    public List<Student> sortList() throws SQLException, IOException {
+        List<Student> liste = this.getAll();
+        liste.sort(Student::compareTo);
+        return liste;
+    }
+
+    /**
+     * filtert die Liste, nimmt nur die Studenten die 30 ECTS haben
+     * @return die gefilterte Liste
+     */
+    public List<Student> filterList() throws SQLException, IOException {
+        List<Student> liste = this.getAll();
+        return liste.stream()
+                .filter(student->student.getTotalKredits() == 30).toList();
+    }
 }

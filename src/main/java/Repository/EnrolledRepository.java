@@ -3,6 +3,8 @@ package Repository;
 import Modele.Enrolledment;
 import Exception.DasElementExistiertException;
 import Exception.ListIsEmptyException;
+import Modele.Student;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
@@ -166,7 +168,7 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
                 }
 
                 if (wahr) {
-                    String query = "DELETE FROM student WEHERE idstudent = ? AND idkurs = ?";
+                    String query = "DELETE FROM enrolled WEHERE idstudent = ? AND idkurs = ?";
 
                     long idStudent = obj.getIdStudent();
                     long idkurs = obj.getIdKurs();
@@ -227,5 +229,32 @@ public abstract class EnrolledRepository implements ICrudRepository<Enrolledment
         this.stopConnection();
         return wahr;
     }
+
+    public void deleteEnrolledNachKurs(long kursId) throws IOException, SQLException {
+
+        this.startConnection();
+
+        try {
+
+            String query = "DELETE FROM enrolled WEHERE idkurs = ?";
+
+            PreparedStatement preparedStmt = connection.prepareStatement(query);
+            preparedStmt.setLong(1, kursId);
+
+            preparedStmt.execute();
+
+            }
+             catch (Exception e)
+             {
+                e.printStackTrace();
+             }
+
+        this.stopConnection();
+
+    }
+
+
+
+
 
 }
