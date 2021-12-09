@@ -13,7 +13,7 @@ public class Student extends Person implements Comparable<Student>{
 
     public Student(long id, String vorname, String nachname) {
         super(vorname, nachname);
-        this.studentID = studentID;
+        this.studentID = id;
         this.totalKredits = 0;
     }
 

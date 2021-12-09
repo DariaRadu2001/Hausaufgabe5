@@ -97,7 +97,7 @@ public class KursController implements Controller<Kurs> {
         return kursRepo.sort();
     }
 
-    public boolean entfernenKurs(long idKurs, long idLehrer) throws SQLException, IOException {
+    public void entfernenKurs(long idKurs, long idLehrer) throws SQLException, IOException {
         if(this.kursRepo.findOne(idKurs) && this.lehrerRepo.findOne(idLehrer))
         {
             Kurs kurs = this.kursRepo.getKursNachId(idKurs);
@@ -105,23 +105,19 @@ public class KursController implements Controller<Kurs> {
             {
                 this.studentenRepo.andernKredits(idKurs,-1*kurs.getEcts(),kurs.getEcts());
                 this.enrolledRepo.deleteEnrolledNachKurs(idKurs);
-                return true;
             }
         }
-        return false;
     }
 
     public List<Kurs> getKurseFreiePlatze() throws SQLException, IOException {
         return this.kursRepo.kurseFreiePlatze();
     }
 
-    public boolean andernECTS(long idKurs, int ECTS) throws SQLException, IOException {
+    public void andernECTS(long idKurs, int ECTS) throws SQLException, IOException {
         if(this.kursRepo.findOne(idKurs))
         {
             int alteECTS = this.kursRepo.andernECTS(idKurs,ECTS);
             this.studentenRepo.andernKredits(idKurs, ECTS, alteECTS);
-            return true;
         }
-        return false;
     }
 }

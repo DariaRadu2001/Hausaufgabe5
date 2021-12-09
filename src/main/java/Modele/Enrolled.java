@@ -1,12 +1,12 @@
 package Modele;
 
-public class Enrolledment {
+public class Enrolled {
 
     public static long id = 0;
     private long idStudent;
     private long idKurs;
 
-    public Enrolledment(long idStudent, long idKurs) {
+    public Enrolled(long idStudent, long idKurs) {
         this.idStudent = idStudent;
         this.idKurs = idKurs;
         id++;
@@ -26,5 +26,13 @@ public class Enrolledment {
 
     public void setIdKurs(long idKurs) {
         this.idKurs = idKurs;
+    }
+
+    @Override
+    public String toString() {
+        return "Enrolled{" +
+                "idStudent=" + idStudent +
+                ", idKurs=" + idKurs +
+                '}';
     }
 }

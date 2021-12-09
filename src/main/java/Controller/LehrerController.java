@@ -1,7 +1,6 @@
 package Controller;
 
 import Modele.Lehrer;
-import Repository.KursRepository;
 import Repository.LehrerRepository;
 
 import Exception.DasElementExistiertException;
@@ -33,7 +32,7 @@ public class LehrerController implements Controller<Lehrer>{
     }
 
     @Override
-    public boolean delete(Long objID) throws IllegalAccessException, IOException, SQLException {
+    public boolean delete(Long objID) throws IOException, SQLException {
         return this.lehrerRepository.delete(objID);
     }
 

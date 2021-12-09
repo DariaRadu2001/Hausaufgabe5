@@ -1,7 +1,8 @@
 package Controller;
 import Exception.DasElementExistiertException;
-import Modele.Enrolledment;
+import Modele.Enrolled;
 import Modele.Kurs;
+import Modele.Student;
 import Repository.EnrolledRepository;
 import Repository.KursRepository;
 import Exception.ListIsEmptyException;
@@ -24,26 +25,23 @@ public  class EnrolledController {
     }
 
 
-    public Enrolledment create(Enrolledment obj) throws IOException, DasElementExistiertException, SQLException {
+    public Enrolled create(Enrolled obj) throws IOException, DasElementExistiertException, SQLException, ListIsEmptyException {
 
         long idKurs = obj.getIdKurs();
         long idStudent = obj.getIdStudent();
 
         if(this.kursRepo.findOne(idKurs) && this.studentenRepo.findOne(idStudent))
         {
-            if(!this.enrolledRepo.existiertStudent(idStudent))
+            if(!this.enrolledRepo.findOne(idStudent, idKurs))
             {
-                if(!this.enrolledRepo.existiertKurs(idKurs))
+                Kurs kurs = this.kursRepo.getKursNachId(idKurs);
+                if((kurs.getMaximaleAnzahlStudenten() - this.kursRepo.getAnzahlStudenten(idKurs) > 0) && (this.studentenRepo.getNotwendigeKredits(idStudent) >= kurs.getEcts()))
                 {
-                    if(!this.enrolledRepo.findOne(idStudent, idKurs))
-                    {
-                        Kurs kurs = this.kursRepo.getKursNachId(idKurs);
-                        if((kurs.getMaximaleAnzahlStudenten() - this.kursRepo.getAnzahlStudenten(idKurs) > 0) && (this.studentenRepo.getNotwendigeKredits(idStudent) >= kurs.getEcts()))
-                        {
-                            this.enrolledRepo.create(obj);
-                            return obj;
-                        }
-                    }
+                    this.enrolledRepo.create(obj);
+                    Student student = this.studentenRepo.getStudentNachId(idStudent);
+                    Student studentNeu = new Student(student.getVorname(),student.getNachname(),idStudent,(student.getTotalKredits()+kurs.getEcts()));
+                    this.studentenRepo.update(studentNeu);
+                    return obj;
                 }
             }
 
@@ -53,7 +51,7 @@ public  class EnrolledController {
     }
 
 
-    public List<Enrolledment> getAll() throws SQLException, IOException, ListIsEmptyException {
+    public List<Enrolled> getAll() throws SQLException, IOException, ListIsEmptyException {
         return this.enrolledRepo.getAll();
     }
 

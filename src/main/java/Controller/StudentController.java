@@ -51,7 +51,7 @@ public class StudentController implements Controller<Student> {
         return this.studentenRepo.sortList();
     }
 
-    public List<Long> getListeAngemeldeteStudenten(long idKurs) throws SQLException, IOException {
+    public List<Long> getListeAngemeldeteStudenten(long idKurs) throws SQLException{
         return this.studentenRepo.getStudentenAngemeldetBeiEineKurs(idKurs);
     }
 }

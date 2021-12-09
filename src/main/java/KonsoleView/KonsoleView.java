@@ -4,7 +4,7 @@ import Controller.EnrolledController;
 import Controller.KursController;
 import Controller.LehrerController;
 import Controller.StudentController;
-import Modele.Enrolledment;
+import Modele.Enrolled;
 import Modele.Kurs;
 import Modele.Lehrer;
 import Modele.Student;
@@ -74,14 +74,14 @@ public class KonsoleView {
                 6.Studenten angemeldet bei einem Kurs\s
                 7.Entfernen Kurs\s
                 8.Andern ECTS\s
-                9.Tschuss\s
+                9.ENDE\s
                 """);
     }
 
     /**
      * der UI
      */
-    public void start() throws IOException, DasElementExistiertException, InterruptedException, SQLException {
+    public void start() throws IOException, DasElementExistiertException, InterruptedException, SQLException, ListIsEmptyException {
         while(true)
         {
             getMenu();
@@ -123,7 +123,7 @@ public class KonsoleView {
                     }
                     while (!studentController.findOne(idStudent));
 
-                    if(this.enrolledController.create(new Enrolledment(idStudent, idKurs)) != null)
+                    if(this.enrolledController.create(new Enrolled(idStudent, idKurs)) != null)
                         System.out.println("Der Student wurde registered");
                     else
                         System.out.println("Der Student wurde nicht registered");
@@ -133,10 +133,10 @@ public class KonsoleView {
                     Thread.sleep(3000);
                 }
                 case 6 -> {
-                    System.out.println("ID:");
+                    System.out.println("ID Kurs:");
                     id = keyboard.nextLong();
                     if (kursController.findOne(id)) {
-                        studentController.getListeAngemeldeteStudenten(id);
+                        System.out.println(studentController.getListeAngemeldeteStudenten(id));
                     } else
                         System.out.println("Das gegebene Kurs existiert nicht.\n");
                     Thread.sleep(3000);
@@ -180,7 +180,7 @@ public class KonsoleView {
                     Thread.sleep(2000);
                 }
                 case 9 -> {
-                    System.out.println("TSCHUSS!!!");
+                    System.out.println("TSCHÜSS!!!");
                     System.exit(0);
                 }
             }
@@ -261,7 +261,7 @@ public class KonsoleView {
             ects= scan.nextInt();
         }while(ects <= 0);
 
-        return new Kurs(id, name, idLehrer, maximaleAnzahlStudenten, ects);
+        return new Kurs(id,name,idLehrer,maximaleAnzahlStudenten,ects);
 
     }
 
@@ -364,6 +364,7 @@ public class KonsoleView {
                 1.Show Kurse\s
                 2.Show Lehrer\s
                 3.Show Studenten\s
+                4.Show Enrolled\s
                 """);
     }
 
@@ -371,14 +372,14 @@ public class KonsoleView {
      * Ui und Anwendung fur Add Methoden
      * @throws InterruptedException, fur Wartezeit
      */
-    public void getFunctionGetAll() throws InterruptedException, SQLException, IOException {
+    public void getFunctionGetAll() throws InterruptedException, SQLException, IOException, ListIsEmptyException {
         Scanner scan= new Scanner(System.in);
         int key;
         do {
             System.out.print("Wahlen Sie bitte eine Option: ");
             key = scan.nextInt();
         }
-        while(key<1 && key >3);
+        while(key<1 && key >4);
 
         switch (key) {
             case 1 -> {
@@ -391,6 +392,10 @@ public class KonsoleView {
             }
             case 3 -> {
                 System.out.println("STUDENTEN:\n" + studentController.getAll());
+                Thread.sleep(3000);
+            }
+            case 4 -> {
+                System.out.println("ENROLLED:\n" + enrolledController.getAll());
                 Thread.sleep(3000);
             }
         }

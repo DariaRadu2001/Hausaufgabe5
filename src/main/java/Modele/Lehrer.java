@@ -20,7 +20,7 @@ public class Lehrer extends Person{
     @Override
     public String toString() {
         return "Lehrer{" +
-                ", lehrerID=" + lehrerID +
+                "lehrerID=" + lehrerID +
                 '}';
     }
 

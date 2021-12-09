@@ -8,7 +8,7 @@ import Repository.EnrolledRepository;
 import Repository.KursRepository;
 import Repository.LehrerRepository;
 import Repository.StudentRepository;
-
+import Exception.ListIsEmptyException;
 import java.io.*;
 import java.sql.*;
 
@@ -69,10 +69,8 @@ import java.sql.*;
  */
 
 
-
-
 public class jdbc {
-    public static void main(String[] args) throws IOException, SQLException, InterruptedException, DasElementExistiertException {
+    public static void main(String[] args) throws IOException, SQLException, InterruptedException, DasElementExistiertException, ListIsEmptyException, ListIsEmptyException {
         KursRepository kursRepository = new KursRepository();
         LehrerRepository lehrerRepository = new LehrerRepository();
         StudentRepository studentRepository = new StudentRepository();

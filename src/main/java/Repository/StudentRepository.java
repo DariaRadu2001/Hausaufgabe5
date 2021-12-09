@@ -1,46 +1,28 @@
 package Repository;
 
 import Exception.DasElementExistiertException;
+import Modele.Kurs;
 import Modele.Student;
-
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+
 
 public class StudentRepository implements ICrudRepository<Student>{
 
     private Connection connection;
     private Statement statement;
     private ResultSet resultSet;
-    /**
-     * erledigt die Connexion mit der DB
-     */
-    private void startConnection() throws IOException, SQLException {
-        FileInputStream input = new FileInputStream("C:\\Users\\User\\IdeaProjects\\Hausaufgabe5\\target\\config.properties");
-        Properties prop = new Properties();
-        prop.load(input);
-        String url = prop.getProperty("db.url");
-        String user = prop.getProperty("db.user");
-        String password = prop.getProperty("db.password");
-        System.out.println(url+ " "+user+ " "+password);
-        connection = DriverManager.getConnection(url, user, password);
-        statement = connection.createStatement();
-    }
-
-    /**
-     * stopt die Connexion mit der DB
-     */
-    private void stopConnection() throws SQLException {
-        this.connection.close();
-    }
+    private DBConnection dbConnection;
 
     public boolean findOne(long id) throws SQLException, IOException {
-        this.startConnection();
+
         List<Long> idList = new ArrayList<>();
         try {
+            dbConnection = new DBConnection();
+            connection = dbConnection.startConnection();
+            statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT idstudent FROM student");
 
             while (resultSet.next()) {
@@ -52,6 +34,7 @@ public class StudentRepository implements ICrudRepository<Student>{
             e.printStackTrace();
         }
 
+        connection.close();
         return idList.contains(id);
     }
 
@@ -59,8 +42,11 @@ public class StudentRepository implements ICrudRepository<Student>{
     public Student create(Student obj) throws IOException, DasElementExistiertException, SQLException {
 
         if(!this.findOne(obj.getStudentID())) {
-            this.startConnection();
+
             try {
+                dbConnection = new DBConnection();
+                connection = dbConnection.startConnection();
+
                 String query = "INSERT INTO student VALUES(?, ?, ?, ?)";
 
                 String vorname = obj.getVorname();
@@ -75,7 +61,7 @@ public class StudentRepository implements ICrudRepository<Student>{
                 preparedStmt.setInt(4, anzahl);
 
                 preparedStmt.execute();
-                this.stopConnection();
+                connection.close();
                 return obj;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -89,9 +75,11 @@ public class StudentRepository implements ICrudRepository<Student>{
     @Override
     public List<Student> getAll() throws IOException, SQLException {
         List<Student> list = new ArrayList<>();
-        this.startConnection();
-        try{
 
+        try{
+            dbConnection = new DBConnection();
+            connection = dbConnection.startConnection();
+            statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT * FROM student");
 
             while(resultSet.next())
@@ -106,7 +94,7 @@ public class StudentRepository implements ICrudRepository<Student>{
     } catch (Exception e) {
         e.printStackTrace();
     }
-        this.stopConnection();
+        connection.close();
         if(list.size()>0)
             return list;
         return null;
@@ -117,15 +105,18 @@ public class StudentRepository implements ICrudRepository<Student>{
 
         if(this.findOne(objID))
         {
-            this.startConnection();
+
             try{
+                dbConnection = new DBConnection();
+                connection = dbConnection.startConnection();
+                statement = connection.createStatement();
                 String query = "DELETE FROM student WEHERE idstudent = ?";
 
                 PreparedStatement preparedStmt = connection.prepareStatement(query);
                 preparedStmt.setLong  (1, objID);
 
                 preparedStmt.execute();
-                this.stopConnection();
+                connection.close();
                 return true;
             }
             catch(Exception e)
@@ -142,9 +133,9 @@ public class StudentRepository implements ICrudRepository<Student>{
     @Override
     public Student update(Student obj) throws IOException,SQLException {
         if(this.findOne(obj.getStudentID())) {
-            this.startConnection();
-
             try {
+                dbConnection = new DBConnection();
+                connection = dbConnection.startConnection();
                 String query = "UPDATE student SET Vorname = ? , Nachname = ?, AnzahlKredits =? WHERE idstudent = ?";
 
                 String vorname = obj.getVorname();
@@ -159,7 +150,7 @@ public class StudentRepository implements ICrudRepository<Student>{
                 preparedStmt.setLong(4, id);
 
                 preparedStmt.execute();
-                this.stopConnection();
+                connection.close();
                 return obj;
 
             } catch (Exception e) {
@@ -179,10 +170,13 @@ public class StudentRepository implements ICrudRepository<Student>{
         return 0;
     }
 
-    public List<Long> getStudentenAngemeldetBeiEineKurs(long id) throws SQLException, IOException {
+    public List<Long> getStudentenAngemeldetBeiEineKurs(long id) throws SQLException {
         List<Long> listeAngemeldet = new ArrayList<>();
-        this.startConnection();
+
         try{
+            dbConnection = new DBConnection();
+            connection = dbConnection.startConnection();
+            statement = connection.createStatement();
             resultSet = statement.executeQuery("SELECT * FROM enrolled");
             while (resultSet.next()) {
                 if(resultSet.getLong("idkurs") == id)
@@ -197,7 +191,7 @@ public class StudentRepository implements ICrudRepository<Student>{
         {
             e.printStackTrace();
         }
-        this.stopConnection();
+        connection.close();
         return listeAngemeldet;
     }
 
@@ -233,5 +227,34 @@ public class StudentRepository implements ICrudRepository<Student>{
         List<Student> liste = this.getAll();
         return liste.stream()
                 .filter(student->student.getTotalKredits() == 30).toList();
+    }
+
+    public Student getStudentNachId(long id) throws SQLException, IOException {
+
+        Student student = null;
+        try {
+            dbConnection = new DBConnection();
+            connection = dbConnection.startConnection();
+            statement = connection.createStatement();
+            String query = "SELECT * FROM student WHERE idstudent = ?";
+            PreparedStatement preparedStmt = connection.prepareStatement(query);
+            preparedStmt.setLong(1, id);
+            ResultSet resultSet = preparedStmt.executeQuery();
+
+            if(resultSet.next())
+            {
+                String vorname = resultSet.getString("Vorname");
+                String nachname = resultSet.getString("Nachname");
+                int anzahl = resultSet.getInt("AnzahlKredits");
+                student = new Student(vorname, nachname, id, anzahl);
+            }
+
+            connection.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return student;
     }
 }
