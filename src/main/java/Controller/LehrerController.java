@@ -16,6 +16,14 @@ public class LehrerController implements Controller<Lehrer>{
         this.lehrerRepository = lehrerRepository;
     }
 
+    public LehrerRepository getLehrerRepository() {
+        return lehrerRepository;
+    }
+
+    public void setLehrerRepository(LehrerRepository lehrerRepository) {
+        this.lehrerRepository = lehrerRepository;
+    }
+
     /**
      * legt in DB ein neuer Lehrer
      * @param obj, das Objekt, das man hinlegt

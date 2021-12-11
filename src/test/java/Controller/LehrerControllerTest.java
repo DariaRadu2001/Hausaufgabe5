@@ -19,7 +19,6 @@ class LehrerControllerTest {
     LehrerRepository lehrerRepo = Mockito.mock(LehrerRepository.class);
     LehrerController lehrerController = null;
 
-
     @BeforeEach
     void setUp() throws SQLException, IOException, DasElementExistiertException {
 
@@ -43,7 +42,6 @@ class LehrerControllerTest {
         Mockito.when(lehrerRepo.update(new Lehrer("","",10))).thenReturn(null);
         lehrerController = new LehrerController(lehrerRepo);
         Mockito.when(lehrerController.create(lehrer6)).thenReturn(lehrer6);
-
     }
 
     @Test
@@ -84,13 +82,16 @@ class LehrerControllerTest {
     @Test
     void create() throws SQLException, IOException, DasElementExistiertException {
         Lehrer lehrer6 =  new Lehrer("Daria","Miklos",5);
-        assertEquals(lehrer6, lehrerController.create(lehrer6));
+        Mockito.when(lehrerRepo.create(lehrer6)).thenReturn(lehrer6);
+        Lehrer lehrer = lehrerController.create(lehrer6);
+        assertNotNull(lehrer);
     }
 
     @Test
     void update() throws SQLException, IOException {
         Lehrer lehrer5 = new Lehrer("Magda","Pop",4);
-        System.out.println(lehrerController.update(new Lehrer("Magda","Pop",4)));
-        assertEquals(lehrer5, lehrerController.update(new Lehrer("Magda","Pop",4)));
+        Mockito.when(lehrerRepo.update(lehrer5)).thenReturn(lehrer5);
+        Lehrer lehrer = lehrerController.update(lehrer5);
+        assertNotNull(lehrer);
     }
 }

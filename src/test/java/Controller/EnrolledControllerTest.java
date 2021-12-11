@@ -2,6 +2,8 @@ package Controller;
 import Exception.ListIsEmptyException;
 import Exception.DasElementExistiertException;
 import Modele.Enrolled;
+import Modele.Kurs;
+import Modele.Student;
 import Repository.EnrolledRepository;
 import Repository.KursRepository;
 import Repository.StudentRepository;
@@ -78,8 +80,15 @@ class EnrolledControllerTest {
     @Test
     void create() throws ListIsEmptyException, SQLException, IOException, DasElementExistiertException {
         Enrolled enrolled5 = new Enrolled(4,2);
+        Mockito.when(enrolledRepository.create(enrolled5)).thenReturn(enrolled5);
+        Mockito.when(enrolledRepository.findOne(4,2)).thenReturn(false);
+        Mockito.when(studentRepository.findOne(4)).thenReturn(true);
+        Mockito.when(kursRepository.findOne(2)).thenReturn(true);
+        Mockito.when(kursRepository.getKursNachId(2)).thenReturn(new Kurs(2,"",1,100,1));
+        Mockito.when(kursRepository.getAnzahlStudenten(2)).thenReturn(10);
+        Mockito.when(studentRepository.getNotwendigeKredits(4)).thenReturn(30);
+        Mockito.when(studentRepository.getStudentNachId(4)).thenReturn(new Student("Mara","Luca",4,0));
         Enrolled enrolled1 = enrolledController.create(enrolled5);
-        System.out.println(enrolled1);
         assertNotNull(enrolled1);
     }
 }

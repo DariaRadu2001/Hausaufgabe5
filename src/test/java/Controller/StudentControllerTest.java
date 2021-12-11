@@ -13,8 +13,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 class StudentControllerTest {
 
     StudentRepository studentRepository = Mockito.mock(StudentRepository.class);
@@ -123,13 +121,17 @@ class StudentControllerTest {
 
     @Test
     void update() throws SQLException, IOException {
-        Assertions.assertEquals(new Student(4,"Magda","Pop"), studentController.update(new Student(4,"Magda","Pop")));
+        Student student5 = new Student(4,"Magda","Pop");
+        Mockito.when(studentRepository.update(student5)).thenReturn(student5);
+        Student student = studentController.update(student5);
+        Assertions.assertNotNull(student);
     }
 
     @Test
     void create() throws SQLException, IOException, DasElementExistiertException {
-        Student student = new Student(5,"Daria","Miklos");
-        System.out.println(student);
-        Assertions.assertEquals(new Student(5,"Daria","Miklos"), studentController.create(new Student(5,"Daria","Miklos")));
+        Student student6 = new Student(5,"Daria","Miklos");
+        Mockito.when(studentRepository.create(student6)).thenReturn(student6);
+        Student student = studentController.create(student6);
+        Assertions.assertNotNull(student);
     }
 }

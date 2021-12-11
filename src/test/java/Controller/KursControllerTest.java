@@ -140,11 +140,19 @@ class KursControllerTest {
     }
 
     @Test
-    void update() {
+    void update() throws SQLException, IOException {
+        Kurs kurs5 = new Kurs(1,"Baze de date",1,100,100);
+        Mockito.when(kursRepository.update(kurs5)).thenReturn(kurs5);
+        Kurs kurs = kursController.update(kurs5);
+        assertNotNull(kurs);
     }
 
     @Test
-    void create() {
+    void create() throws SQLException, IOException, DasElementExistiertException {
+        Kurs kurs6 = new Kurs(5,"Germana",2,19,3);
+        Mockito.when(kursRepository.create(kurs6)).thenReturn(kurs6);
+        Kurs kurs = kursController.create(kurs6);
+        assertNotNull(kurs);
     }
 
 }
